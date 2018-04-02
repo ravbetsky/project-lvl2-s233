@@ -1,0 +1,44 @@
+{
+  "name": "ravbetsky-gendiff",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "gendiff": "dist/bin/gendiff.js"
+  },
+  "engines": {
+    "node": "8"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "babel-node": "babel-node",
+    "eslint": "eslint",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ravbetsky/project-lvl1-s233.git"
+  },
+  "author": "Artem Ravbetsky",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ravbetsky/project-lvl1-s233/issues"
+  },
+  "homepage": "https://github.com/ravbetsky/project-lvl1-s233#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  },
+  "dependencies": {
+    "commander": "^2.15.1"
+  }
+}
