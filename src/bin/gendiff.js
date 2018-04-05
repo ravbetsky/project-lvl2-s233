@@ -8,4 +8,7 @@ program
   .description('Compares two configuration files and shows a difference.')
   .option('-f, --format', 'Output format');
 
+program
+  .action((...args) => console.log(genDiff(...args)));
+
 program.parse(process.argv);
