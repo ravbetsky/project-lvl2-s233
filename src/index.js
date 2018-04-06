@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { has } from 'lodash';
+import { has, union, keys } from 'lodash';
 
 const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
 
@@ -14,8 +14,8 @@ const toString = (diff) => {
 export default (pathToBefore, pathToAfter) => {
   const before = JSON.parse(fs.readFileSync(pathToBefore, 'utf8'));
   const after = JSON.parse(fs.readFileSync(pathToAfter, 'utf8'));
-  const keys = Object.keys({ ...before, ...after });
-  const result = keys.reduce((acc, key) => {
+  const allKeys = union(keys(before), keys(after));
+  const result = allKeys.reduce((acc, key) => {
     if (has(before, key)) {
       const oldData = { key, value: before[key], type: 'unchanged' };
       if (has(after, key)) {
