@@ -1,5 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import { has, union, keys } from 'lodash';
+import getParser from './parsers';
 
 const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
 
@@ -12,8 +14,10 @@ const toString = (diff) => {
 };
 
 export default (pathToBefore, pathToAfter) => {
-  const before = JSON.parse(fs.readFileSync(pathToBefore, 'utf8'));
-  const after = JSON.parse(fs.readFileSync(pathToAfter, 'utf8'));
+  const extBefore = path.extname(pathToBefore);
+  const extAfter = path.extname(pathToAfter);
+  const before = getParser(extBefore)(fs.readFileSync(pathToBefore, 'utf8'));
+  const after = getParser(extAfter)(fs.readFileSync(pathToAfter, 'utf8'));
   const allKeys = union(keys(before), keys(after));
   const result = allKeys.reduce((acc, key) => {
     if (has(before, key)) {
