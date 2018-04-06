@@ -16,3 +16,9 @@ test('YAML difference', () => {
   const pathToAfter = path.join(__dirname, '/__fixtures__/after.yml');
   expect(genDiff(pathToBefore, pathToAfter)).toBe(expected);
 });
+
+test('INI difference', () => {
+  const pathToBefore = path.join(__dirname, '/__fixtures__/before.ini');
+  const pathToAfter = path.join(__dirname, '/__fixtures__/after.ini');
+  expect(genDiff(pathToBefore, pathToAfter)).toBe(expected);
+});
