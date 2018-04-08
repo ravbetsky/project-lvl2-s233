@@ -3,6 +3,8 @@ import path from 'path';
 import { has, union, keys } from 'lodash';
 import getParser from './parsers';
 
+const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
+
 const getPadding = (level, mode = ' ') =>
   `${' '.repeat((level - 1) * 4)}${' '.repeat(2)}${mode} `;
 
@@ -15,8 +17,6 @@ const stringify = (body, level) => {
   }
   return body;
 };
-
-const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
 
 const node = key => (body, type = 'unchanged') => ({ key, ...body, type });
 
