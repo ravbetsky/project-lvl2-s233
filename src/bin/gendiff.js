@@ -9,6 +9,9 @@ program
   .option('-f, --format', 'Output format');
 
 program
-  .action((firstConfig, secondConfig) => console.log(genDiff(firstConfig, secondConfig)));
+  .action((firstConfig, secondConfig, options) => {
+    const result = genDiff(firstConfig, secondConfig, options.format);
+    return console.log(result);
+  });
 
 program.parse(process.argv);
