@@ -3,34 +3,59 @@ import path from 'path';
 import { has, union, keys } from 'lodash';
 import getParser from './parsers';
 
+const getPadding = (level, mode = ' ') =>
+  ' '.repeat((level - 1) * 4) + ' '.repeat(2) + mode + ' ';
+  
+const stringify = (body, level) => {
+  if (body instanceof Object) {
+    return JSON.stringify(body, null, '\t')
+      .replace(/\t+/g, getPadding(level + 1))
+      .replace(/\"/g, '')
+      .replace(/\}/g, `${getPadding(level)}}`)
+  }
+  return body;
+}
+
 const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
 
-const toString = (diff) => {
-  const result = diff.reduce((acc, obj) => {
-    const { key, value, type } = obj;
-    return `${acc}  ${symbols.get(type)} ${key}: ${value}\n`;
-  }, '\n');
-  return `{${result}}`;
+const node = (key) => (body, type = 'unchanged') => {
+  return { key, ...body, type };
+}
+
+const render = (tree, level = 0) => {
+  const { key, children, value, type } = tree;
+  const body = children ? '{\n' + children.map((child) => render(child, level + 1)).join('\n') + `\n${' '.repeat((level) * 4)}}` : value;
+  if (key) {
+    return `${getPadding(level, symbols.get(type))}${key}: ${stringify(body, level)}`
+  }
+  return `${body}`;
 };
+
+const build = (before, after) => {
+  const allKeys = union(keys(before), keys(after));
+  const result = allKeys.reduce((acc, key) => {
+    const makeNode = node(key);
+    if (has(before, key)) {
+      if (has(after, key)) {
+        if (after[key] instanceof Object && before[key] instanceof Object) {
+          return acc.concat(makeNode({ children: build(before[key], after[key]) }));
+        } else if (after[key] !== before[key]) {
+          return acc.concat(makeNode({ value: before[key] }, 'deleted'), makeNode({ value: after[key] }, 'added'));
+        }
+        return acc.concat(makeNode({ value: before[key] }));
+      }
+      return acc.concat(makeNode({ value: before[key] }, 'deleted'));
+    }
+    return acc.concat(makeNode({ value: after[key] }, 'added'));
+  }, []);
+  return result;
+}
 
 export default (pathToBefore, pathToAfter) => {
   const extBefore = path.extname(pathToBefore);
   const extAfter = path.extname(pathToAfter);
   const before = getParser(extBefore)(fs.readFileSync(pathToBefore, 'utf8'));
   const after = getParser(extAfter)(fs.readFileSync(pathToAfter, 'utf8'));
-  const allKeys = union(keys(before), keys(after));
-  const result = allKeys.reduce((acc, key) => {
-    if (has(before, key)) {
-      const oldData = { key, value: before[key], type: 'unchanged' };
-      if (has(after, key)) {
-        if (after[key] !== oldData.value) {
-          return acc.concat({ key, value: after[key], type: 'added' }, { ...oldData, type: 'deleted' });
-        }
-        return acc.concat(oldData);
-      }
-      return acc.concat({ ...oldData, type: 'deleted' });
-    }
-    return acc.concat({ key, value: after[key], type: 'added' });
-  }, []);
-  return toString(result);
-};
+  const result = { children: build(before, after) };
+  return render(result);
+}
