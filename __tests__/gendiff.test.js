@@ -27,3 +27,11 @@ test('INI difference', () => {
   const expected = fs.readFileSync(pathToDiff, 'utf-8');
   expect(genDiff(pathToBefore, pathToAfter)).toBe(expected);
 });
+
+test('difference formatted in plain', () => {
+  const pathToBefore = getFixturePath('before.json');
+  const pathToAfter = getFixturePath('after.json');
+  const pathToDiff = getFixturePath('diffPlain.txt');
+  const expected = fs.readFileSync(pathToDiff, 'utf-8');
+  expect(genDiff(pathToBefore, pathToAfter, 'plain')).toBe(expected);
+});
