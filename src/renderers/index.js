@@ -1,7 +1,7 @@
-import tree from './tree';
-import plain from './plain';
+import renderTree from './tree';
+import renderPlain from './plain';
 
-const renderers = { tree, plain };
+const renderers = { tree: renderTree, plain: renderPlain };
 
-export default (tree, format = 'tree') =>
-  renderers[format](tree);
+export default (data, format = 'tree') =>
+  renderers[format](data);

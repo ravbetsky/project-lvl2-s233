@@ -22,4 +22,4 @@ const build = (before, after) => {
   return result;
 };
 
-export default (before, after) => ({ children: build(before, after) })
+export default (before, after) => ({ children: build(before, after) });
