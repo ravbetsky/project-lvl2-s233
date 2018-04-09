@@ -39,7 +39,8 @@ test('difference formatted in plain', () => {
 test('difference formatted in JSON', () => {
   const pathToBefore = getFixturePath('before.json');
   const pathToAfter = getFixturePath('after.json');
-  const pathToDiff = getFixturePath('diff.json');
+  const pathToDiff = getFixturePath('diffJSON.txt');
   const expected = JSON.parse(fs.readFileSync(pathToDiff, 'utf-8'));
-  expect(genDiff(pathToBefore, pathToAfter, 'json')).toEqual(expected);
+  const actual = JSON.parse(genDiff(pathToBefore, pathToAfter, 'json'));
+  expect(actual).toEqual(expected);
 });
