@@ -1,0 +1,51 @@
+{
+  "common.setting2": {
+   "action": "deleted",
+   "value": "200"
+  },
+  "common.setting3": {
+   "action": "updated",
+   "from": true,
+   "to": {
+     "key": "value"
+   }
+  },
+  "common.setting4": {
+   "action": "added",
+   "value": "blah blah"
+  },
+  "common.setting5": {
+   "action": "added",
+   "value": {
+     "key5": "value5"
+   }
+  },
+  "common.setting6.ops": {
+   "action": "added",
+   "value": "vops"
+  },
+  "group1.baz": {
+   "action": "updated",
+   "from": "bas",
+   "to": "bars"
+  },
+  "group1.nest": {
+   "action": "updated",
+   "from": {
+     "key": "value"
+   },
+   "to": "str"
+  },
+  "group2": {
+   "action": "deleted",
+   "value": {
+     "abc": "12345"
+   }
+  },
+  "group3": {
+   "action": "added",
+   "value": {
+     "fee": "100500"
+   }
+  }
+}
