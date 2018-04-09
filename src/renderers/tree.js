@@ -1,7 +1,7 @@
-const symbols = new Map([['unchanged', ' '], ['deleted', '-'], ['added', '+']]);
+import _ from 'lodash';
 
-const getPadding = (level, mode = ' ') =>
-  `${' '.repeat((level - 1) * 4)}${' '.repeat(2)}${mode} `;
+const getPadding = level => ' '.repeat(level * 4);
+const getInfo = mode => `  ${mode} `;
 
 const stringify = (body, level) => {
   if (body instanceof Object) {
@@ -13,14 +13,36 @@ const stringify = (body, level) => {
   return body;
 };
 
-const render = (tree, level = 0) => {
-  const { key, type, ...body } = tree;
-  const { value, children } = body;
-  const result = children ? `{\n${children.map(el => render(el, level + 1)).join('\n')}\n${' '.repeat((level) * 4)}}` : value;
-  if (key) {
-    return `${getPadding(level, symbols.get(type))}${key}: ${stringify(result, level)}`;
-  }
-  return result;
+const nodeRenderers = {
+  inserted(node, level, render) {
+    const { children, key } = node;
+    return `${getPadding(level)}${getInfo(' ')}${key}: ${render(children, level + 1)}`;
+  },
+  unchanged(node, level) {
+    const { from, key } = node;
+    return `${getPadding(level)}${getInfo(' ')}${key}: ${stringify(from, level + 1)}`;
+  },
+  deleted(node, level) {
+    const { from, key } = node;
+    return `${getPadding(level)}${getInfo('-')}${key}: ${stringify(from, level + 1)}`;
+  },
+  added(node, level) {
+    const { to, key } = node;
+    return `${getPadding(level)}${getInfo('+')}${key}: ${stringify(to, level + 1)}`;
+  },
+  updated(node, level) {
+    return [this.deleted(node, level), this.added(node, level)].join('\n');
+  },
+};
+
+
+const render = (data, level = 0) => {
+  const result = _.flatten(data.map((node) => {
+    const { type } = node;
+    return nodeRenderers[type](node, level, render);
+  }));
+
+  return ['{', ...result, `${getPadding(level)}}`].join('\n');
 };
 
 export default render;

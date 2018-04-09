@@ -4,11 +4,12 @@ import getParser from './parsers';
 import build from './builder';
 import render from './renderers';
 
+const getParsedFile = pathToFile =>
+  getParser(path.extname(pathToFile))(fs.readFileSync(pathToFile, 'utf8'));
+
 export default (pathToBefore, pathToAfter, format = 'tree') => {
-  const extBefore = path.extname(pathToBefore);
-  const extAfter = path.extname(pathToAfter);
-  const before = getParser(extBefore)(fs.readFileSync(pathToBefore, 'utf8'));
-  const after = getParser(extAfter)(fs.readFileSync(pathToAfter, 'utf8'));
+  const before = getParsedFile(pathToBefore);
+  const after = getParsedFile(pathToAfter);
   const result = build(before, after);
   return render(result, format);
 };

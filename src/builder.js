@@ -1,25 +1,24 @@
-import { has, union, keys } from 'lodash';
+import _ from 'lodash';
 
-const node = key => (body, type = 'unchanged') => ({ key, ...body, type });
+const buildNode = key => (body, type) => ({ key, ...body, type });
 
-const build = (before, after) => {
-  const allKeys = union(keys(before), keys(after));
-  const result = allKeys.reduce((acc, key) => {
-    const makeNode = node(key);
-    if (has(before, key)) {
-      if (has(after, key)) {
+const buildAST = (before, after) => {
+  const keys = _.union(_.keys(before), _.keys(after));
+  return keys.map((key) => {
+    const makeNode = buildNode(key);
+    if (_.has(before, key)) {
+      if (_.has(after, key)) {
         if (after[key] instanceof Object && before[key] instanceof Object) {
-          return acc.concat(makeNode({ children: build(before[key], after[key]) }));
+          return makeNode({ children: buildAST(before[key], after[key]) }, 'inserted');
         } else if (after[key] !== before[key]) {
-          return acc.concat(makeNode({ value: before[key] }, 'deleted'), makeNode({ value: after[key] }, 'added'));
+          return makeNode({ from: before[key], to: after[key] }, 'updated');
         }
-        return acc.concat(makeNode({ value: before[key] }));
+        return makeNode({ from: before[key] }, 'unchanged');
       }
-      return acc.concat(makeNode({ value: before[key] }, 'deleted'));
+      return makeNode({ from: before[key] }, 'deleted');
     }
-    return acc.concat(makeNode({ value: after[key] }, 'added'));
+    return makeNode({ to: after[key] }, 'added');
   }, []);
-  return result;
 };
 
-export default (before, after) => ({ children: build(before, after) });
+export default buildAST;

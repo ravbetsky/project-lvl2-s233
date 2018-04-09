@@ -1,4 +1,4 @@
-import { compact, has } from 'lodash';
+import _ from 'lodash';
 
 const formatValue = (value) => {
   switch (value.constructor) {
@@ -11,43 +11,35 @@ const formatValue = (value) => {
   }
 };
 
-const actions = {
-  deleted() {
-    return 'removed';
+const nodeRenderers = {
+  inserted(node, path, render) {
+    const { key, children } = node;
+    return render(children, _.compact(path.concat(key)));
   },
-  added(value) {
-    return `added with ${value instanceof Object ? '' : 'value: '}${formatValue(value)}`;
+  deleted(node, path) {
+    const { key } = node;
+    const prop = path.concat(key).join('.');
+    return `Property '${prop}' was removed`;
   },
-  updated(value1, value2) {
-    return `updated. From ${formatValue(value1)} to ${formatValue(value2)}`;
+  added(node, path) {
+    const { to, key } = node;
+    const prop = path.concat(key).join('.');
+    return `Property '${prop}' was added with ${to instanceof Object ? '' : 'value: '}${formatValue(to)}`;
+  },
+  updated(node, path) {
+    const { key, from, to } = node;
+    const prop = path.concat(key).join('.');
+    return `Property '${prop}' was updated. From ${formatValue(from)} to ${formatValue(to)}`;
   },
 };
 
-const iter = (tree, acc = {}, props = []) => {
-  const { key, type, ...body } = tree;
-  const { value, children } = body;
-  if (children) {
-    return children
-      .reduce((iAcc, el) => ({ ...iAcc, ...iter(el, iAcc, props.concat(el.key)) }), acc);
-  }
-  if (type !== 'unchanged') {
-    const prop = compact(props).join('.');
-    if (has(acc, prop)) {
-      const prevValue = acc[prop].value1;
-      return { ...acc, [prop]: { action: 'updated', value1: prevValue, value2: value } };
-    }
-    return { ...acc, [prop]: { action: type, value1: value } };
-  }
-  return acc;
+
+const render = (data, path = []) => {
+  const result = _.flatten(data
+    .filter(node => Object.keys(nodeRenderers).includes(node.type))
+    .map(node => nodeRenderers[node.type](node, path, render)));
+
+  return result.join('\n');
 };
 
-const render = log =>
-  Object.keys(log).map((key) => {
-    const { action, value1, value2 } = log[key];
-    return `Property '${key}' was ${actions[action](value1, value2)}`;
-  }).join('\n');
-
-export default (tree) => {
-  const log = iter(tree);
-  return render(log);
-};
+export default render;
