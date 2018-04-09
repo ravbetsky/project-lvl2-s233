@@ -31,7 +31,7 @@ const nodeRenderers = {
     return `${getPadding(level)}${getInfo('+')}${key}: ${stringify(to, level + 1)}`;
   },
   updated(node, level) {
-    return [this.deleted(node, level), this.added(node, level)].join('\n');
+    return [this.deleted(node, level), this.added(node, level)];
   },
 };
 
